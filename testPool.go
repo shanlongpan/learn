@@ -15,6 +15,7 @@ func main() {
 		MaxActive:   2000,
 		IdleTimeout: 20 * time.Second,
 		MaxConnLifetime: 100 * time.Second,
+		Wait:true,
 		Dial: func() (net.Conn, error) {
 			//c, err := redis.Dial("tcp", "127.0.0.1:6379")
 			c, err := net.Dial("tcp", "127.0.0.1:8972")
@@ -49,13 +50,13 @@ func main() {
 					pool.Put(cli,true)
 					return
 				}
-				_,err=pools.Read(cli.C)
+				receByte,err:=pools.Read(cli.C)
 				if err!=nil{
 					log.Println(err)
 				}else{
-					//if i%500==0{
-					//	fmt.Println(string(receByte))
-					//}
+					if string(receByte)!="TEST"{
+						fmt.Println("未返回预期的数据")
+					}
 				}
 				pool.Put(cli,false)
 			}
