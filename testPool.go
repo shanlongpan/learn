@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"learn/pools"
+	"github.com/shanlongpan/learn/pools"
 	"log"
 	"net"
 	"sync"
@@ -11,11 +11,11 @@ import (
 
 func main() {
 	pool := &pools.Pool{
-		MaxIdle:     100,
-		MaxActive:   2000,
-		IdleTimeout: 20 * time.Second,
+		MaxIdle:         100,
+		MaxActive:       2000,
+		IdleTimeout:     20 * time.Second,
 		MaxConnLifetime: 100 * time.Second,
-		Wait:true,
+		Wait:            true,
 		Dial: func() (net.Conn, error) {
 			//c, err := redis.Dial("tcp", "127.0.0.1:6379")
 			c, err := net.Dial("tcp", "127.0.0.1:8972")
@@ -35,30 +35,30 @@ func main() {
 		go func() {
 			for range worklist {
 				wg.Done()
-				cli,err:=pool.Get()
-				if err!=nil{
+				cli, err := pool.Get()
+				if err != nil {
 					log.Println(err)
 					return
 				}
 
-				str:="test"
+				str := "test"
 
-				err=pools.Write(cli.C,[]byte(str))
+				err = pools.Write(cli.C, []byte(str))
 
-				if err!=nil{
+				if err != nil {
 					log.Println(err)
-					pool.Put(cli,true)
+					pool.Put(cli, true)
 					return
 				}
-				receByte,err:=pools.Read(cli.C)
-				if err!=nil{
+				receByte, err := pools.Read(cli.C)
+				if err != nil {
 					log.Println(err)
-				}else{
-					if string(receByte)!="TEST"{
+				} else {
+					if string(receByte) != "TEST" {
 						fmt.Println("未返回预期的数据")
 					}
 				}
-				pool.Put(cli,false)
+				pool.Put(cli, false)
 			}
 		}()
 	}
@@ -68,7 +68,7 @@ func main() {
 		worklist <- i
 	}
 
-	fmt.Println("pool建立，连接数：",pool.Active)
+	fmt.Println("pool建立，连接数：", pool.Active)
 
 	close(worklist)
 	wg.Wait()

@@ -12,8 +12,8 @@ type Server struct {
 	funcs map[string]reflect.Value
 }
 
-func NewServer(host string)*Server{
-	return &Server{addr:host,funcs:make(map[string]reflect.Value)}
+func NewServer(host string) *Server {
+	return &Server{addr: host, funcs: make(map[string]reflect.Value)}
 }
 
 //注册函数反射  f为函数
@@ -31,33 +31,33 @@ func (s *Server) Run() {
 	l, _ := net.Listen("tcp", s.addr)
 	for {
 		conn, err := l.Accept()
-		if err!=nil{
+		if err != nil {
 			fmt.Println(err)
 			continue
 		}
-		go handleConn(conn,s)
+		go handleConn(conn, s)
 	}
 }
 
-func handleConn(conn net.Conn,s *Server){
+func handleConn(conn net.Conn, s *Server) {
 	conn.SetReadDeadline(time.Now().Add(2 * time.Minute)) // 2分钟超时时间，没有数据读入，断开连接
 
 	defer conn.Close()
 
 	srvSession := NewSession(conn)
 
-	for{
+	for {
 		// 读取 RPC 调用数据
 		b, err := srvSession.Read()
 
-		if err!=nil{
+		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		// 解码 RPC 调用数据
 		rpcData, err := decode(b)
 
-		if err!=nil{
+		if err != nil {
 			fmt.Println(err)
 			return
 		}
@@ -91,11 +91,11 @@ func handleConn(conn net.Conn,s *Server){
 }
 
 func main() {
-	ser:=NewServer("localhost:9999")
+	ser := NewServer("localhost:9999")
 
 	//注册函数反射
-	ser.Register("sum",sum)
-	ser.Register("incr",incr)
+	ser.Register("sum", sum)
+	ser.Register("incr", incr)
 
 	ser.Run()
 }
@@ -108,14 +108,11 @@ func incr(n int) (int, error) {
 	return n + 1, nil
 }
 
-
-
-
 /**
-   如下是自己测使用的测试代码
- */
+  如下是自己测使用的测试代码
+*/
 
-func test(){
+func test() {
 	funcs := make(map[string]reflect.Value) // server 端维护 funcName => func 的 map
 	funcs["incr"] = reflect.ValueOf(incr)
 
@@ -141,5 +138,3 @@ func test(){
 	}
 	fmt.Println(res2) // [2, <nil>]
 }
-
-

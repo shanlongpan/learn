@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	pb "github.com/shanlongpan/learn/proto"
 	"google.golang.org/grpc"
-	pb "learn/proto"
 	"log"
 	"sync"
 	"time"
@@ -19,23 +19,23 @@ func main() {
 	}
 	defer conn.Close()
 
-	worklist:=make(chan int)
+	worklist := make(chan int)
 	// 实例化 UserInfoService 微服务的客户端
 	t := time.Now()
-	for i:=0;i<2000;i++{
+	for i := 0; i < 2000; i++ {
 		go func() {
-			for range worklist{
+			for range worklist {
 				wg.Done()
 
 				client := pb.NewUserInfoServiceClient(conn)
 				req := new(pb.UserRequest)
 
 				req.Name = "小明"
-				r, err:= client.GetUserInfo(context.Background(), req)
+				r, err := client.GetUserInfo(context.Background(), req)
 				if err != nil {
 					log.Fatalf("resp error: %v\n", err)
 				}
-				if r.Name!="小明"{
+				if r.Name != "小明" {
 					fmt.Println(r.Name)
 				}
 			}
@@ -44,7 +44,7 @@ func main() {
 
 	for i := 0; i < 50000; i++ {
 		wg.Add(1)
-		worklist<-i
+		worklist <- i
 	}
 
 	close(worklist)

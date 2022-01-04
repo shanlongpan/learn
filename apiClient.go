@@ -12,20 +12,20 @@ import (
 
 // 定义客户端请求的数据格式
 type Test struct {
-	Name  string `json:"name"`
-	ID    int    `json:"id"`
-	Age   int    `json:"age"`
-	Title []string  `json:"title"`
+	Name  string   `json:"name"`
+	ID    int      `json:"id"`
+	Age   int      `json:"age"`
+	Title []string `json:"title"`
 }
 
 func main() {
 	t := time.Now()
 	host := "http://127.0.0.1:8091/ping"
 	tr := &http.Transport{
-		MaxIdleConns:       200,
-		MaxIdleConnsPerHost:  200,
+		MaxIdleConns:        200,
+		MaxIdleConnsPerHost: 200,
 	}
-	netClient:= &http.Client{Transport: tr}
+	netClient := &http.Client{Transport: tr}
 	// 压测会报错
 	// read: connection reset by peer
 

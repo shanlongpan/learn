@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
-	pb "learn/proto"
+	pb "github.com/shanlongpan/learn/proto"
 	"log"
 	"net"
 )

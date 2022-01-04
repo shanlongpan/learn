@@ -1,12 +1,13 @@
 package pools
 
 import (
+	"errors"
 	"net"
 	"sync"
 	"sync/atomic"
 	"time"
-	"errors"
 )
+
 var nowFunc = time.Now
 
 type Pool struct {
@@ -22,10 +23,10 @@ type Pool struct {
 	// 打开最大的连接数
 	MaxActive int
 
-    // Idle多久断开连接，小于服务器超时时间
+	// Idle多久断开连接，小于服务器超时时间
 	IdleTimeout time.Duration
 
-    // 配置最大连接数的时候，并且wait是true的时候，超过最大的连接，get的时候会阻塞，知道有连接放回到连接池
+	// 配置最大连接数的时候，并且wait是true的时候，超过最大的连接，get的时候会阻塞，知道有连接放回到连接池
 	Wait bool
 
 	// 超过多久时间 链接关闭
@@ -49,11 +50,10 @@ type idleList struct {
 // 连接的双向链表
 type poolConn struct {
 	C          net.Conn
-	t          time.Time // idle 时间，即放会pool的时间
+	t          time.Time // idle 时间，即放回pool的时间
 	created    time.Time //创建时间
 	next, prev *poolConn
 }
-
 
 func (p *Pool) lazyInit() {
 
@@ -103,8 +103,7 @@ func (p *Pool) Get() (*poolConn, error) {
 		pc := p.Idle.front
 		p.Idle.popFront()
 		p.mu.Unlock()
-		if (p.TestOnBorrow == nil || p.TestOnBorrow(pc.C, pc.t) == nil) &&
-			(p.MaxConnLifetime == 0 || nowFunc().Sub(pc.created) < p.MaxConnLifetime) {
+		if (p.TestOnBorrow == nil || p.TestOnBorrow(pc.C, pc.t) == nil) && (p.MaxConnLifetime == 0 || nowFunc().Sub(pc.created) < p.MaxConnLifetime) {
 			return pc, nil
 		}
 		pc.C.Close()

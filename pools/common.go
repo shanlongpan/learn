@@ -6,7 +6,7 @@ import (
 	"net"
 )
 
-func Write(s net.Conn,data []byte) error {
+func Write(s net.Conn, data []byte) error {
 	buf := make([]byte, 4+len(data))                       // 4 字节头部 + 数据长度
 	binary.BigEndian.PutUint32(buf[:4], uint32(len(data))) // 写入头部
 	copy(buf[4:], data)                                    // 写入数据
@@ -18,7 +18,7 @@ func Write(s net.Conn,data []byte) error {
 }
 
 // 从连接中读数据
-func Read(s net.Conn)([]byte, error) {
+func Read(s net.Conn) ([]byte, error) {
 	header := make([]byte, 4)
 	_, err := io.ReadFull(s, header)
 	if err != nil {
